@@ -50,7 +50,6 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.runtime.livedata)
     implementation(libs.androidx.activity.compose)
-    debugImplementation(libs.androidx.compose.ui.tooling)
     // coroutines
     implementation(libs.kotlinx.coroutines.android)
     // viewmodel

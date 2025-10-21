@@ -15,7 +15,9 @@ class CarMakeRepository @Inject constructor(
         return if (isNetworkAvailable()) {
             val response = api.getAllMakes()
             val makes = response.results
-            dao.insertAll(makes)
+            if (makes.isNotEmpty()) {
+                dao.insertAll(makes)
+            }
             makes
         } else {
             dao.getAllMakes()

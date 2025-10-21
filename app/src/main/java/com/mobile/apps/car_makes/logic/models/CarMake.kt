@@ -6,8 +6,8 @@ import com.google.gson.annotations.SerializedName
 
 @Entity(tableName = "car_makes")
 data class CarMake(
-    @PrimaryKey val makeId: Int,
-    val makeName: String
+    @PrimaryKey @SerializedName("Make_ID") val makeId: Int,
+    @SerializedName("Make_Name") val makeName: String
 )
 
 data class VpicResponse(

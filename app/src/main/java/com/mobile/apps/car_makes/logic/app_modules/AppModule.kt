@@ -1,14 +1,17 @@
 package com.mobile.apps.car_makes.logic.app_modules
 
 import android.content.Context
+import android.net.ConnectivityManager
 import androidx.room.Room
 import com.mobile.apps.car_makes.logic.daos.CarMakeDao
+import com.mobile.apps.car_makes.logic.dbs.AppDatabase
 import com.mobile.apps.car_makes.logic.interfaces.VpicApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -17,19 +20,33 @@ import retrofit2.converter.gson.GsonConverterFactory
 object AppModule {
 
     @Provides
-    fun provideApi(): VpicApiService = Retrofit.Builder()
-        .baseUrl("https://vpic.nhtsa.dot.gov/api/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-        .create(VpicApiService::class.java)
+    fun provideApi(): VpicApiService {
+        val logging = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+        val client = okhttp3.OkHttpClient.Builder()
+            .addInterceptor(logging)
+            .build()
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://vpic.nhtsa.dot.gov/api/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(client)
+            .build()
+        return retrofit.create(VpicApiService::class.java)
+    }
 
     @Provides
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase = Room.databaseBuilder(
         context,
         AppDatabase::class.java,
         "car_makes_db"
-    )
+    ).build()
 
     @Provides
     fun provideDao(db: AppDatabase): CarMakeDao = db.carMakeDao()
+
+    @Provides
+    fun provideConnectivityManager(@ApplicationContext context: Context): ConnectivityManager {
+        return context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    }
 }
